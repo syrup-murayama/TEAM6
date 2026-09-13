@@ -21,7 +21,7 @@ Updated: 2026-09-13
 |---|---|---|---|---|
 | Master | a1064695 (this Cockpit session) | `main` | Human gate (daisuke) | running |
 | Worker (lead implementer) | daisuke, direct on `main` | `main` | Master | in progress (server.js + public/ scaffolded, verdict flow untested end-to-end pending a working API key) |
-| Specialist Worker (Grok, docs+QA) | f7ccb712 | `grok/docs-and-qa` worktree | Master | running — scope: create `README.md` + `docs/presentation/qa-checklist.md` only, forbidden from editing server.js/public/*/AGENTS.md/CURRENT_TASK.md |
+| Specialist Worker (Grok, docs+QA) | f7ccb712 | `grok/docs-and-qa` worktree | Master | **merged** (`0a66ead`) — `README.md` + `docs/presentation/qa-checklist.md`, reviewed and confirmed accurate against v2 flow after a rebase-and-revise follow-up (first draft was written against the pre-v2 manual-form UI) |
 | Implementation Worker (Grok, app.js) | 850246ce | `grok/voice-flow` worktree | Master | running — scope: rewrite `public/app.js` only for the v2 voice-first flow against the already-committed `server.js`/`index.html` API contract; forbidden from editing any other file |
 | Independent reviewer | Unknown | Unknown | Human gate | Unknown |
 
