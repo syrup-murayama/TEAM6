@@ -41,6 +41,7 @@
 
 - Considered "ロリポップ！デプロイナウ" (GMO Pepabo) but it only officially supports Next.js/Nuxt/static — not plain Express — so it was not used. See `docs/design/requirements.md` if this needs revisiting for a non-hackathon deployment.
 - Chosen instead: `cloudflared tunnel --url http://localhost:3000` (installed via `brew install cloudflared`, a global package install the user approved). Run `pnpm start` in one terminal and `pnpm tunnel` in another; the printed `https://*.trycloudflare.com` URL is the public demo link. It changes every run (free quick-tunnel), so re-share the URL if the tunnel is restarted.
+- This network blocks outbound QUIC/UDP, which makes cloudflared's default protocol hang and return Cloudflare 530 errors. `package.json`'s `tunnel` script pins `--protocol http2` to work around it — verified working (200 response through the tunnel). If running from a different network without this restriction, either protocol should work.
 
 ## Secrets
 
