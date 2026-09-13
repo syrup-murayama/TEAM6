@@ -22,7 +22,10 @@ Updated: 2026-09-13
 | Master | a1064695 (this Cockpit session) | `main` | Human gate (daisuke) | running |
 | Worker (lead implementer) | daisuke, direct on `main` | `main` | Master | in progress (server.js + public/ scaffolded, verdict flow untested end-to-end pending a working API key) |
 | Specialist Worker (Grok, docs+QA) | f7ccb712 | `grok/docs-and-qa` worktree | Master | running — scope: create `README.md` + `docs/presentation/qa-checklist.md` only, forbidden from editing server.js/public/*/AGENTS.md/CURRENT_TASK.md |
+| Implementation Worker (Grok, app.js) | 850246ce | `grok/voice-flow` worktree | Master | running — scope: rewrite `public/app.js` only for the v2 voice-first flow against the already-committed `server.js`/`index.html` API contract; forbidden from editing any other file |
 | Independent reviewer | Unknown | Unknown | Human gate | Unknown |
+
+Role split as of 2026-09-13: daisuke (Master Agent, this session) now owns design/API contracts and integration only. Implementation of `public/app.js` and docs/QA is delegated to two parallel Grok workers on separate worktrees/branches to avoid file conflicts. Master will review each diff, run `pnpm start` + manual checks, and merge via PR per AGENTS.md § Team workflow.
 
 - Immutable comparison refs: None verified.
 - Authority conflicts: None verified.
@@ -53,7 +56,8 @@ Only 2 people write app code for this build (lead + 1 assistant); the other 2 fo
 
 - Repo is now public — anything pushed to it is visible to anyone. Do not commit secrets, credentials, or non-public hackathon material; keep those out of the tracked tree entirely (not just `.gitignore`'d after the fact).
 - Voice input via the Web Speech API (`SpeechRecognition`) is Chrome-only and needs mic permission granted live during the demo — test this on the actual demo machine/browser before presenting, not just in dev.
-- 1-hour time budget is tight for voice-in + LLM judge + TTS + reschedule UI; if time runs short, cut voice input first (fall back to the sleepiness slider from `docs/design/screen-flow.md`) before cutting the ElevenLabs voice-out, since the "AI speaks the verdict" moment is the strongest demo beat.
+- 1-hour time budget is tight for voice-in + LLM judge + TTS + reschedule UI; if time runs short, cut voice input first (fall back to the text fallback form in `public/index.html`) before cutting the ElevenLabs voice-out, since the "AI speaks the verdict" moment is the strongest demo beat.
+- Today's dev/test network path is 社内ネットワーク → Tailscale → exit node (自宅Raspberry Pi) — likely why cloudflared's default QUIC transport failed (nested UDP tunneling through WireGuard tends to break QUIC handshakes; worked around with `--protocol http2`, see AGENTS.md § Hosting). The actual hackathon venue network will differ — re-verify `pnpm tunnel` connectivity there on the day, and consider turning off the Tailscale exit node during the demo to cut extra latency on the judge/TTS API calls.
 - SSH push to GitHub fails with "Permission denied (publickey)" for this machine/account — origin was switched to HTTPS as a workaround. Other machines/developers may hit the same issue; fix with `gh auth setup-git` or an added SSH key if SSH is preferred later.
 - Assistant's GitHub username not yet collected — needed to confirm they already have write access (repo currently has 4 named collaborators; confirm the assistant is one of them).
 
