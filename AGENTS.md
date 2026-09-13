@@ -6,7 +6,7 @@
 
 **Name**: AGI-ハッカソン-20260913
 **Type**: coding (assumed; product not yet decided — see CURRENT_TASK.md)
-**Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Four first-time-together members with varied backgrounds; only one member (the repo owner) can code. Goal is to discuss and ship one product together during the event.
+**Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Four first-time-together members with varied backgrounds; all four are developers and will implement together. Goal is to discuss and ship one product together during the event.
 **Stack**: Unknown — to be decided after team discussion. Update this file once chosen.
 
 ## Instruction hierarchy
@@ -41,7 +41,15 @@
 - Prefer existing architecture and dependencies once chosen; avoid introducing a second stack mid-hackathon.
 - Test observable contracts, negative cases, state transitions, and recovery where relevant.
 - Do not weaken a failing test or substitute a simpler mechanism merely to pass acceptance.
-- Given the hackathon time budget and single-coder constraint, bias toward the smallest working slice that can be demoed, not maximal coverage — but do not silently drop the acceptance oracle to hit that target.
+- Given the hackathon time budget, bias toward the smallest working slice that can be demoed, not maximal coverage — but do not silently drop the acceptance oracle to hit that target.
+
+## Team workflow (Cockpit + PR)
+
+- All four developers work through Cockpit, each on their own task/branch/worktree, so the four workstreams stay isolated and don't overwrite each other's uncommitted state.
+- Every workstream lands on `main` only via a Pull Request; no direct pushes to `main`. Each PR needs at least one independent review (per Role system above) before merge.
+- Before splitting work, agree on role/scope boundaries (which files or modules each PR owns) to keep merges low-conflict; record the split in `CURRENT_TASK.md`'s task topology table.
+- Whoever opens a Cockpit task for one of the four should record it in `CURRENT_TASK.md`'s task topology table (role, branch/worktree, reports-to, status) so the table stays the live source of truth, not this file.
+- Merge order and conflict resolution for competing/overlapping PRs is decided by the Master Agent (or human gate for anything red), not by whoever merges first.
 
 ## Role system
 

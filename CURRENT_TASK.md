@@ -8,10 +8,10 @@ Updated: 2026-09-13
 
 ## Current state
 
-- Branch: not a git repository yet (no `git init` run)
-- Baseline or latest accepted commit: none — no commits exist
-- Working tree: empty except for files created by `/init-agent` in this session
-- Active tasks/worktrees: none
+- Branch: `main`
+- Baseline or latest accepted commit: `26600a5` (root commit — /init-agent scaffolding)
+- Working tree: `AGENTS.md` and this file modified (Cockpit + PR workflow decision), not yet committed
+- Active tasks/worktrees: none — no remote configured yet, no PR workflow exercised
 
 ## Active task topology
 
@@ -27,7 +27,8 @@ Updated: 2026-09-13
 ## Accepted decisions
 
 - Project type assumed as `coding` (generic) since no product/stack has been chosen yet. Revisit once the team picks a direction — it may turn out to be `web-frontend` or another profile.
-- Only one team member (repo owner, studio@muraya.ma) codes; the other three contribute via discussion/design/product decisions. Task contracts should assume a single implementation worker (human or delegated agent) rather than parallel human coders.
+- All four team members are developers and will implement in parallel (not a single-coder team as first assumed). Task contracts should expect multiple simultaneous human implementers on the same repo — use branches/worktrees per contributor, and treat concurrent-edit conflicts and merge order as an explicit topic when splitting work, not an afterthought.
+- Workflow: all four use Cockpit to run their work, split by role/scope, and land changes on `main` only via reviewed Pull Requests (no direct push to `main`). See `AGENTS.md` § Team workflow (Cockpit + PR).
 
 ## Work in progress
 
@@ -35,8 +36,9 @@ Updated: 2026-09-13
 
 ## Blockers and risks
 
-- No git repository exists yet — recommend `git init` before the first commit so history and branches are available for the delegation protocol.
+- No remote/GitHub repository yet — needed before PR-based merging can start. Repo name still undecided (renaming later is fine — GitHub redirects old names).
 - Product/tech stack undecided — `AGENTS.md` stack section and verified commands are placeholders until chosen.
+- Role/scope split among the four developers not yet defined — needed before opening parallel Cockpit tasks to keep PRs low-conflict.
 
 ## Supervision cost
 
@@ -49,7 +51,8 @@ Updated: 2026-09-13
 ## Next actions
 
 1. Run the team discussion to settle on the product idea and target stack.
-2. `git init` the repository once there is something to commit.
+2. Create the remote repository (e.g. `gh repo create`) and push `main`; set up branch protection so `main` requires a PR + review.
 3. Update `AGENTS.md` Type/Stack/Verified commands with real values.
-4. Create the first task contract (`docs/agent/task-contract-template.md` copy) before any implementation delegation.
-5. Update this file at the next clean boundary.
+4. Split scope across the four developers and record it in the task topology table above; open one Cockpit task/branch per person.
+5. Create the first task contract (`docs/agent/task-contract-template.md` copy) before any implementation delegation.
+6. Update this file at the next clean boundary.
