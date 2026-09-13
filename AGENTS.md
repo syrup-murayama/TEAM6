@@ -6,8 +6,8 @@
 
 **Name**: AGI-ハッカソン-20260913
 **Type**: coding (assumed; product not yet decided — see CURRENT_TASK.md)
-**Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Four first-time-together members with varied backgrounds; all four are developers and will implement together. Goal is to discuss and ship one product together during the event.
-**Stack**: Unknown — to be decided after team discussion. Update this file once chosen.
+**Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Building "AI二度寝裁判所" (AI Oversleep Court) — a joke-premise app that plays the "everything, even trivial life decisions, gets handed to AI" future for laughs: the user reports how sleepy they are (by voice), an AI "judge" (Claude) hands down a verdict on whether they may snooze and for how long, speaks it aloud (ElevenLabs), and reschedules the alarm/morning plan accordingly. The only decision the AI does NOT make unilaterally is calling in sick — that needs an explicit long-press human confirmation. Concept/screen-flow docs: `docs/episodes/`, `docs/design/screen-flow.md`.
+**Stack**: Node.js + Express backend (`/api/judge` calls the Claude API for the verdict, `/api/speak` calls ElevenLabs for TTS) + plain HTML/CSS/JS frontend using the browser's native Web Speech API (`SpeechRecognition`) for voice input. No frontend framework/build step — chosen for hackathon speed.
 
 ## Instruction hierarchy
 
@@ -30,11 +30,16 @@
 ## Verified commands
 
 ```bash
-# Install: unknown (no manifest yet)
-# Dev: unknown
-# Test: unknown
-# Build / lint: unknown
+# Install: unknown (no package.json yet — first implementer to scaffold the Express app should run `npm init` and update this)
+# Dev: unknown — e.g. `node server.js` once written
+# Test: unknown — no test setup yet; hackathon scope may skip automated tests, see Coding Profile
+# Build / lint: none — no build step (plain HTML/CSS/JS, no bundler)
 ```
+
+## Secrets
+
+- `ANTHROPIC_API_KEY` and `ELEVENLABS_API_KEY` are required by the backend and MUST be read from environment variables (e.g. a local `.env` loaded by the process), never hardcoded or committed. Add `.env` to `.gitignore` before the first commit that introduces it.
+- The repo is public — treat any accidental key commit as a live incident (rotate the key immediately), not just a revert.
 
 ## Coding Profile
 
@@ -45,7 +50,8 @@
 
 ## Team workflow (Cockpit + PR)
 
-- All four developers work through Cockpit, each on their own task/branch/worktree, so the four workstreams stay isolated and don't overwrite each other's uncommitted state.
+- Team of 4 total, but only 2 write code for this build: the lead implementer (daisuke) and one implementation assistant. The other 2 members are producing presentation/demo materials (not pushing app code, though they still have write access to the repo for docs/slides if useful).
+- The 2 coders work through Cockpit, each on their own task/branch/worktree, so their workstreams stay isolated and don't overwrite each other's uncommitted state.
 - Every workstream lands on `main` only via a Pull Request; no direct pushes to `main`. Enforced server-side: the repo (`syrup-murayama/TEAM6`, public) has GitHub branch protection on `main` requiring 1 approving review, dismissing stale reviews on new pushes, and blocking force-push/deletion. (Made public specifically so this Free-plan protection could apply — private repos on Free don't support branch protection.)
 - Before splitting work, agree on role/scope boundaries (which files or modules each PR owns) to keep merges low-conflict; record the split in `CURRENT_TASK.md`'s task topology table.
 - Whoever opens a Cockpit task for one of the four should record it in `CURRENT_TASK.md`'s task topology table (role, branch/worktree, reports-to, status) so the table stays the live source of truth, not this file.
