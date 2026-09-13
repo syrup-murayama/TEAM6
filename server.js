@@ -31,12 +31,46 @@ const ANTHROPIC_CONFIG = {
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM"; // default ElevenLabs demo voice
 
+// --- Mock "already connected" device data (Apple Watch health + Calendar) ---
+// Real integration is out of scope for the 1-hour demo. This stands in for it
+// so the app can act as if it already knows the user's sleep/schedule, per the
+// "AI already has all your data" premise in docs/episodes/.
+const MOCK_DEVICE_CONTEXT = {
+  appleWatch: {
+    connected: true,
+    bedtime: "01:18",
+    wakeMovementDetected: true,
+    sleepHours: 5.7,
+    sleepQuality: "低め（深い睡眠が不足気味）",
+    restingHeartRate: 61,
+  },
+  calendar: {
+    connected: true,
+    firstEvent: { title: "定例ミーティング", time: "09:30" },
+    commuteMinutes: 35,
+  },
+};
+
+function nowJst() {
+  return new Intl.DateTimeFormat("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Tokyo",
+  }).format(new Date());
+}
+
+app.get("/api/context", (req, res) => {
+  res.json({ ...MOCK_DEVICE_CONTEXT, now: nowJst() });
+});
+
 const JUDGE_SYSTEM_PROMPT = `あなたは「AI二度寝裁判所」の裁判官AIです。
-ユーザーの申立て（眠さレベル1-10、就寝時刻、今日最初の予定の時刻）を審理し、二度寝を何分許可するか、または即時起床を命じるかを判決として下します。
+Apple Watchとカレンダーからすでに連携済みのデータ（就寝時刻、睡眠の質、今日最初の予定）と、ユーザーが寝起きに話した内容（transcript）をもとに、二度寝を何分許可するか、または即時起床を命じるかを判決として下します。
 
 判決基準:
 - 今日最初の予定までの残り時間が短いほど、許可時間は短くする。
-- 眠さが高いほど、許可時間は長くする傾向にしてよいが、予定に遅れるリスクがある場合は棄却(即時起床)する。
+- 睡眠の質が低い・睡眠時間が短いほど、許可時間は長くする傾向にしてよいが、予定に遅れるリスクがある場合は棄却(即時起床)する。
+- ユーザーの発言（言い訳や気分）も判決理由に反映する。
 - 判決文は法廷風のユーモラスな文体（「主文。〜」で始める）にする。
 
 必ず次のJSON形式のみで応答してください（説明文やコードブロックは付けない）:
@@ -101,7 +135,7 @@ async function callAnthropicJudge(config, userContent) {
 }
 
 app.post("/api/judge", async (req, res) => {
-  const { sleepiness, bedtime, firstEventTime, note } = req.body || {};
+  const { transcript } = req.body || {};
 
   const config = OPENAI_COMPATIBLE_PROVIDERS[JUDGE_PROVIDER] || ANTHROPIC_CONFIG;
 
@@ -111,10 +145,20 @@ app.post("/api/judge", async (req, res) => {
     });
   }
 
-  const userContent = `眠さレベル: ${sleepiness}/10
-昨夜の就寝時刻: ${bedtime}
-今日最初の予定の時刻: ${firstEventTime}
-ユーザーからの一言: ${note || "(なし)"}`;
+  const { appleWatch, calendar } = MOCK_DEVICE_CONTEXT;
+  const userContent = `現在時刻: ${nowJst()}
+【Apple Watch連携データ】
+昨夜の就寝時刻: ${appleWatch.bedtime}
+睡眠時間: ${appleWatch.sleepHours}時間
+睡眠の質: ${appleWatch.sleepQuality}
+安静時心拍数: ${appleWatch.restingHeartRate}
+
+【カレンダー連携データ】
+今日最初の予定: ${calendar.firstEvent.title}（${calendar.firstEvent.time}〜）
+通勤時間: 約${calendar.commuteMinutes}分
+
+【ユーザーが今話した内容】
+${transcript || "(聞き取れず)"}`;
 
   try {
     const rawText =

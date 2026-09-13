@@ -19,8 +19,9 @@ Updated: 2026-09-13
 
 | Role | Task ID | Branch/worktree | Reports to | Status |
 |---|---|---|---|---|
-| Master | Unknown | Unknown | Human gate | Unknown |
-| Worker | Unknown | Unknown | Unknown | Unknown |
+| Master | a1064695 (this Cockpit session) | `main` | Human gate (daisuke) | running |
+| Worker (lead implementer) | daisuke, direct on `main` | `main` | Master | in progress (server.js + public/ scaffolded, verdict flow untested end-to-end pending a working API key) |
+| Specialist Worker (Grok, docs+QA) | f7ccb712 | `grok/docs-and-qa` worktree | Master | running — scope: create `README.md` + `docs/presentation/qa-checklist.md` only, forbidden from editing server.js/public/*/AGENTS.md/CURRENT_TASK.md |
 | Independent reviewer | Unknown | Unknown | Human gate | Unknown |
 
 - Immutable comparison refs: None verified.

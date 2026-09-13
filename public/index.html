@@ -12,39 +12,22 @@
 
   <section id="screen-alarm" class="screen active">
     <div class="mascot">⏰</div>
-    <h1>起きた…？　それとも、まだ…？</h1>
-    <button id="btn-plead" class="cta">申し立てる</button>
+    <h1>アラームが鳴っています</h1>
+    <p class="hint">タップして止めてください（このあとは声だけで進みます）</p>
+    <button id="btn-plead" class="cta">アラームを止める</button>
   </section>
 
-  <section id="screen-form" class="screen">
-    <h1>二度寝申立書</h1>
+  <section id="screen-listening" class="screen">
+    <div class="mascot" id="listen-mascot">🎙️</div>
+    <h1 id="listen-status">聞いています…</h1>
+    <p id="listen-transcript" class="transcript"></p>
 
-    <label>
-      眠さレベル
-      <input type="range" id="sleepiness" min="1" max="10" value="5" />
-      <span id="sleepiness-value">5</span> / 10
-    </label>
-
-    <label>
-      昨夜の就寝時刻
-      <input type="time" id="bedtime" value="01:00" />
-    </label>
-
-    <label>
-      今日最初の予定の時刻
-      <input type="time" id="first-event" value="09:30" />
-    </label>
-
-    <label>
-      補足（声で話すか、入力してください）
-      <div class="voice-row">
-        <input type="text" id="note" placeholder="例: まだ眠い…" />
-        <button id="btn-mic" type="button" title="音声入力">🎤</button>
-      </div>
-      <span id="mic-status"></span>
-    </label>
-
-    <button id="btn-submit" class="cta">証拠を提出し、判決を仰ぐ</button>
+    <!-- 音声認識非対応ブラウザ用フォールバックのみ -->
+    <div id="fallback-form" hidden>
+      <p>このブラウザは音声入力に対応していません。かわりに入力してください。</p>
+      <input type="text" id="note-fallback" placeholder="例: まだ眠い、9時半から会議…" />
+      <button id="btn-submit-fallback" class="cta">送信</button>
+    </div>
   </section>
 
   <section id="screen-trial" class="screen">
@@ -58,7 +41,6 @@
       <p id="verdict-reason"></p>
     </div>
     <audio id="verdict-audio"></audio>
-    <button id="btn-execute" class="cta"></button>
   </section>
 
   <section id="screen-execute" class="screen">
@@ -72,10 +54,12 @@
       </button>
     </div>
 
-    <button id="btn-restart" class="cta secondary">もう一度</button>
+    <button id="btn-restart" class="cta secondary">もう一度（デモリセット）</button>
   </section>
 
 </main>
+
+<audio id="greeting-audio"></audio>
 
 <script src="app.js"></script>
 </body>
