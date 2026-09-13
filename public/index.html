@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI二度寝裁判所</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<main id="app">
+
+  <section id="screen-alarm" class="screen active">
+    <div class="mascot">⏰</div>
+    <h1>起きた…？　それとも、まだ…？</h1>
+    <button id="btn-plead" class="cta">申し立てる</button>
+  </section>
+
+  <section id="screen-form" class="screen">
+    <h1>二度寝申立書</h1>
+
+    <label>
+      眠さレベル
+      <input type="range" id="sleepiness" min="1" max="10" value="5" />
+      <span id="sleepiness-value">5</span> / 10
+    </label>
+
+    <label>
+      昨夜の就寝時刻
+      <input type="time" id="bedtime" value="01:00" />
+    </label>
+
+    <label>
+      今日最初の予定の時刻
+      <input type="time" id="first-event" value="09:30" />
+    </label>
+
+    <label>
+      補足（声で話すか、入力してください）
+      <div class="voice-row">
+        <input type="text" id="note" placeholder="例: まだ眠い…" />
+        <button id="btn-mic" type="button" title="音声入力">🎤</button>
+      </div>
+      <span id="mic-status"></span>
+    </label>
+
+    <button id="btn-submit" class="cta">証拠を提出し、判決を仰ぐ</button>
+  </section>
+
+  <section id="screen-trial" class="screen">
+    <div class="gavel">⚖️</div>
+    <h1>審理中…しばし待たれよ</h1>
+  </section>
+
+  <section id="screen-verdict" class="screen">
+    <h1>判決</h1>
+    <div id="verdict-card" class="verdict-card">
+      <p id="verdict-reason"></p>
+    </div>
+    <audio id="verdict-audio"></audio>
+    <button id="btn-execute" class="cta"></button>
+  </section>
+
+  <section id="screen-execute" class="screen">
+    <h1 id="execute-title"></h1>
+    <p id="execute-detail"></p>
+
+    <div class="sick-gate">
+      <p>それでも起きられない場合は…</p>
+      <button id="btn-sick" class="danger">
+        本日は休む（3秒長押しで承認）
+      </button>
+    </div>
+
+    <button id="btn-restart" class="cta secondary">もう一度</button>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
