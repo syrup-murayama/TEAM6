@@ -8,6 +8,12 @@
 </head>
 <body>
 
+<header id="context-bar" class="context-bar" hidden>
+  <span id="ctx-sleep"></span>
+  <span id="ctx-event"></span>
+  <span id="ctx-commute"></span>
+</header>
+
 <main id="app">
 
   <section id="screen-alarm" class="screen active">
@@ -20,7 +26,7 @@
   <section id="screen-listening" class="screen">
     <div class="mascot" id="listen-mascot">🎙️</div>
     <h1 id="listen-status">聞いています…</h1>
-    <p id="listen-transcript" class="transcript"></p>
+    <div id="listen-transcript" class="transcript-log"></div>
 
     <!-- 音声認識非対応ブラウザ用フォールバックのみ -->
     <div id="fallback-form" hidden>

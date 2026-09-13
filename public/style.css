@@ -140,3 +140,44 @@ input[type="range"], input[type="time"], input[type="text"] {
   padding-top: 16px;
   margin-top: 8px;
 }
+
+.context-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  font-size: 0.8rem;
+  color: var(--text);
+  z-index: 10;
+}
+
+.context-bar[hidden] {
+  display: none;
+}
+
+.transcript-log {
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.transcript-log .turn-user::before {
+  content: "🗣️ ";
+}
+
+.transcript-log .turn-ai::before {
+  content: "⚖️ ";
+}

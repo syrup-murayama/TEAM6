@@ -1,8 +1,14 @@
 (() => {
   "use strict";
 
-  const GREETING_TEXT = "起きた…？　それとも、まだ…？";
+  const GREETING_TEXT = "あさですよー。起きてくださーい。ごはん、できてますよ〜";
   const FALLBACK_DENIED_TEXT = "AI裁判所が応答しませんでした。即時起床とみなします。";
+  const TOTAL_USER_TURNS = 3; // number of user utterances before a final verdict
+  const MAX_SILENCE_NUDGES = 2;
+  const SILENCE_NUDGES = [
+    "おーい、起きてますかー？　ノックノック。",
+    "聞こえてますかー？　まだ夢の中ですか？",
+  ];
   const SICK_HOLD_MS = 3000;
   const POST_VERDICT_DELAY_MS = 1500;
   // Greeting playback can leak into the mic if recognition starts immediately.
@@ -24,6 +30,11 @@
     verdict: document.getElementById("screen-verdict"),
     execute: document.getElementById("screen-execute"),
   };
+
+  const contextBar = document.getElementById("context-bar");
+  const ctxSleep = document.getElementById("ctx-sleep");
+  const ctxEvent = document.getElementById("ctx-event");
+  const ctxCommute = document.getElementById("ctx-commute");
 
   const btnPlead = document.getElementById("btn-plead");
   const listenStatus = document.getElementById("listen-status");
@@ -58,6 +69,9 @@
   let sickPressing = false;
   let sickConfirmed = false;
   let deviceContext = null;
+  let conversationTurn = 0;
+  let conversationHistory = []; // [{ speaker: "user" | "ai", text }]
+  let silenceNudgeCount = 0;
 
   function showScreen(name) {
     Object.values(screens).forEach((el) => el.classList.remove("active"));
@@ -190,7 +204,33 @@
     const data = await fetchJson("/api/context", { signal });
     console.log("[context]", data);
     deviceContext = data;
+    renderContextBar(data);
     return data;
+  }
+
+  function renderContextBar(data) {
+    if (!data || !data.appleWatch || !data.calendar) return;
+    const { appleWatch, calendar } = data;
+    ctxSleep.textContent = `😴 睡眠${appleWatch.sleepHours}h（${appleWatch.sleepQuality}）`;
+    ctxEvent.textContent = `📅 ${calendar.firstEvent.time} ${calendar.firstEvent.title}`;
+    ctxCommute.textContent = `🚗 通勤${calendar.commuteMinutes}分`;
+    contextBar.hidden = false;
+  }
+
+  function appendTranscriptLine(speaker, text) {
+    if (!text) return;
+    conversationHistory.push({ speaker, text });
+    const line = document.createElement("div");
+    line.className = speaker === "user" ? "turn-user" : "turn-ai";
+    line.textContent = text;
+    listenTranscript.appendChild(line);
+    listenTranscript.scrollTop = listenTranscript.scrollHeight;
+  }
+
+  function formatHistoryForServer() {
+    return conversationHistory
+      .map((turn) => `${turn.speaker === "user" ? "ユーザー" : "AI"}: ${turn.text}`)
+      .join("\n");
   }
 
   async function fetchSpeakBlob(text, signal) {
@@ -335,13 +375,14 @@
         else interim += piece;
       }
 
-      const displayed = (finalText || interim).trim();
-      if (displayed) listenTranscript.textContent = displayed;
+      if (interim.trim()) {
+        setListenStatus(`聞いています…「${interim.trim()}」`);
+      }
 
       const confirmed = finalText.trim();
       if (confirmed) {
         stopRecognition();
-        void submitTranscript(confirmed);
+        void handleUserUtterance(confirmed);
       }
     });
 
@@ -352,7 +393,11 @@
 
       if (!acceptSpeech || judging || !screens.listening.classList.contains("active")) return;
 
-      if (error === "no-speech" || error === "aborted") return;
+      if (error === "no-speech") {
+        void handleSilence();
+        return;
+      }
+      if (error === "aborted") return;
 
       if (error === "not-allowed" || error === "service-not-allowed" || error === "audio-capture") {
         acceptSpeech = false;
@@ -361,18 +406,18 @@
       }
 
       setListenStatus(`音声認識エラー（${error}）。もう一度話してください…`);
+      const session = currentSession;
+      if (!session) return;
+      setTimeout(() => {
+        if (!acceptSpeech || judging || !isCurrent(session.id)) return;
+        void startListening(session);
+      }, 250);
     });
 
     recognition.addEventListener("end", () => {
       recognitionActive = false;
-      if (!acceptSpeech || judging || !screens.listening.classList.contains("active")) return;
-      if (!fallbackForm.hidden) return;
-
-      setListenStatus("もう一度お願いします。聞いています…");
-      setTimeout(() => {
-        if (!acceptSpeech || judging) return;
-        tryStartRecognition();
-      }, 250);
+      // Restart decisions are made explicitly (handleUserUtterance / handleSilence /
+      // the generic error handler above) to avoid racing multiple restart timers.
     });
 
     return recognition;
@@ -424,8 +469,80 @@
     startWebSpeech();
   }
 
-  async function submitTranscript(transcript) {
+  async function handleUserUtterance(text) {
     const session = currentSession;
+    if (!session || judging || !isCurrent(session.id)) return;
+
+    silenceNudgeCount = 0;
+    appendTranscriptLine("user", text);
+    conversationTurn += 1;
+
+    if (conversationTurn < TOTAL_USER_TURNS) {
+      await continueConversation(session);
+      return;
+    }
+
+    await submitForVerdict(session);
+  }
+
+  async function handleSilence() {
+    const session = currentSession;
+    if (!session || judging || !isCurrent(session.id)) return;
+    if (!screens.listening.classList.contains("active")) return;
+
+    silenceNudgeCount += 1;
+
+    if (silenceNudgeCount > MAX_SILENCE_NUDGES) {
+      // Gave up nudging; treat as an utterance so the demo doesn't hang forever.
+      await handleUserUtterance("（反応なし。まだ眠っている様子）");
+      return;
+    }
+
+    const nudge = SILENCE_NUDGES[(silenceNudgeCount - 1) % SILENCE_NUDGES.length];
+    appendTranscriptLine("ai", nudge);
+    setListenStatus("聞いています…");
+
+    try {
+      await speakAndPlay(nudge, greetingAudio, session, "greeting");
+    } catch (err) {
+      if (isAbortError(err) || !isCurrent(session.id)) return;
+      console.warn("[speak nudge] failed", err);
+    }
+
+    if (!isCurrent(session.id) || judging) return;
+    await startListening(session);
+  }
+
+  async function continueConversation(session) {
+    setListenStatus("聞いています…");
+
+    try {
+      const raw = await fetchJson("/api/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ transcript: formatHistoryForServer() }),
+        signal: session.signal,
+      });
+      const reply = raw?.reply;
+      if (reply && isCurrent(session.id)) {
+        appendTranscriptLine("ai", reply);
+        try {
+          await speakAndPlay(reply, greetingAudio, session, "greeting");
+        } catch (err) {
+          if (isAbortError(err) || !isCurrent(session.id)) return;
+          console.warn("[speak chat] failed", err);
+        }
+      }
+    } catch (err) {
+      if (isAbortError(err) || !isCurrent(session.id)) return;
+      console.warn("[chat] failed", err);
+    }
+
+    if (!isCurrent(session.id) || judging) return;
+    await startListening(session);
+  }
+
+  async function submitForVerdict(session) {
     if (!session || judging || !isCurrent(session.id)) return;
 
     judging = true;
@@ -440,7 +557,7 @@
       const raw = await fetchJson("/api/judge", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ transcript }),
+        body: JSON.stringify({ transcript: formatHistoryForServer() }),
         signal: session.signal,
       });
       verdict = normalizeVerdict(raw);
@@ -495,8 +612,11 @@
     const session = beginSession();
     judging = false;
     acceptSpeech = false;
+    conversationTurn = 0;
+    conversationHistory = [];
+    silenceNudgeCount = 0;
     hideFallbackForm();
-    listenTranscript.textContent = "";
+    listenTranscript.innerHTML = "";
     setListenStatus("AIが話しかけています…");
 
     armAudioElement(greetingAudio);
@@ -514,6 +634,7 @@
       console.warn("[context] failed", err);
     }
 
+    appendTranscriptLine("ai", GREETING_TEXT);
     try {
       await speakAndPlay(GREETING_TEXT, greetingAudio, session, "greeting");
     } catch (err) {
@@ -567,6 +688,9 @@
     flowStarted = false;
     judging = false;
     acceptSpeech = false;
+    conversationTurn = 0;
+    conversationHistory = [];
+    silenceNudgeCount = 0;
     stopRecognition();
     clearPendingTimers();
     if (abortController) abortController.abort();
@@ -581,8 +705,9 @@
     greetingObjectUrl = null;
     verdictObjectUrl = null;
 
-    listenTranscript.textContent = "";
+    listenTranscript.innerHTML = "";
     setListenStatus("聞いています…");
+    contextBar.hidden = true;
     hideFallbackForm();
     noteFallback.value = "";
     verdictReason.textContent = "";
@@ -599,8 +724,9 @@
 
   btnSubmitFallback.addEventListener("click", () => {
     if (fallbackForm.hidden || !screens.listening.classList.contains("active")) return;
-    const transcript = (noteFallback.value || "").trim();
-    void submitTranscript(transcript);
+    const text = (noteFallback.value || "").trim();
+    noteFallback.value = "";
+    if (text) void handleUserUtterance(text);
   });
 
   btnSick.addEventListener("mousedown", startSickPress);
