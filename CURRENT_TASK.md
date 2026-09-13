@@ -48,7 +48,8 @@ Only 2 people write app code for this build (lead + 1 assistant); the other 2 fo
 
 ## Work in progress
 
-- `ginana0015-creator/presentation-deck` (branch off this commit, `c787a59`): drafted `docs/presentation/pitch.md` covering the pitch story, demo highlight order, anticipated Q&A, and a 7-slide deck outline — built from `docs/design/requirements.md`, `docs/design/screen-flow.md`, and both `docs/episodes/` files, since the app isn't demoable yet. Marked spots to swap in real screenshots once the MVP works. PR pending.
+- `ginana0015-creator/presentation-deck` (branch off commit `c787a59`, PR #3 open): drafted `docs/presentation/pitch.md` covering the pitch story, demo highlight order, anticipated Q&A, and a 7-slide deck outline — built from `docs/design/requirements.md`, `docs/design/screen-flow.md`, and both `docs/episodes/` files, since the app isn't demoable yet. Marked spots to swap in real screenshots once the MVP works.
+- Same branch, follow-up commit: added `docs/presentation/klingai-video-brief.md` — a requirements doc + scene-by-scene English prompt script for generating short KlingAI video clips (courtroom-mascot world-building cuts, not a substitute for real UI capture) to fill the "screenshot not ready yet" gaps in `pitch.md` slides 4-6. Flags the verdict-stamp moment and the human-gate long-press as the two highest-priority clips to actually produce if time is short.
 
 ## Note on an earlier, now-superseded workstream
 
