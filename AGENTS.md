@@ -46,7 +46,7 @@
 ## Team workflow (Cockpit + PR)
 
 - All four developers work through Cockpit, each on their own task/branch/worktree, so the four workstreams stay isolated and don't overwrite each other's uncommitted state.
-- Every workstream lands on `main` only via a Pull Request; no direct pushes to `main`. Each PR needs at least one independent review (per Role system above) before merge.
+- Every workstream lands on `main` only via a Pull Request; no direct pushes to `main`. Enforced server-side: the repo (`syrup-murayama/TEAM6`, public) has GitHub branch protection on `main` requiring 1 approving review, dismissing stale reviews on new pushes, and blocking force-push/deletion. (Made public specifically so this Free-plan protection could apply — private repos on Free don't support branch protection.)
 - Before splitting work, agree on role/scope boundaries (which files or modules each PR owns) to keep merges low-conflict; record the split in `CURRENT_TASK.md`'s task topology table.
 - Whoever opens a Cockpit task for one of the four should record it in `CURRENT_TASK.md`'s task topology table (role, branch/worktree, reports-to, status) so the table stays the live source of truth, not this file.
 - Merge order and conflict resolution for competing/overlapping PRs is decided by the Master Agent (or human gate for anything red), not by whoever merges first.

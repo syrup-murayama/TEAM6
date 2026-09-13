@@ -9,9 +9,11 @@ Updated: 2026-09-13
 ## Current state
 
 - Branch: `main`
-- Baseline or latest accepted commit: `26600a5` (root commit — /init-agent scaffolding)
-- Working tree: `AGENTS.md` and this file modified (Cockpit + PR workflow decision), not yet committed
-- Active tasks/worktrees: none — no remote configured yet, no PR workflow exercised
+- Baseline or latest accepted commit: `4ccab67` (Cockpit + PR workflow doc update), pushed to `origin/main`
+- Remote: `https://github.com/syrup-murayama/TEAM6` (public — switched from private so branch protection could apply), origin uses HTTPS (SSH key auth failed — publickey denied)
+- Branch protection on `main`: enabled server-side (1 required approving review, dismiss-stale-reviews on, force-push and deletion blocked)
+- Working tree: clean
+- Active tasks/worktrees: none yet — no Cockpit tasks opened, no PRs exercised
 
 ## Active task topology
 
@@ -36,9 +38,10 @@ Updated: 2026-09-13
 
 ## Blockers and risks
 
-- No remote/GitHub repository yet — needed before PR-based merging can start. Repo name still undecided (renaming later is fine — GitHub redirects old names).
+- Repo is now public — anything pushed to it is visible to anyone. Do not commit secrets, credentials, or non-public hackathon material; keep those out of the tracked tree entirely (not just `.gitignore`'d after the fact).
 - Product/tech stack undecided — `AGENTS.md` stack section and verified commands are placeholders until chosen.
 - Role/scope split among the four developers not yet defined — needed before opening parallel Cockpit tasks to keep PRs low-conflict.
+- SSH push to GitHub fails with "Permission denied (publickey)" for this machine/account — origin was switched to HTTPS as a workaround. Other machines/developers may hit the same issue; fix with `gh auth setup-git` or an added SSH key if SSH is preferred later.
 
 ## Supervision cost
 
@@ -51,8 +54,7 @@ Updated: 2026-09-13
 ## Next actions
 
 1. Run the team discussion to settle on the product idea and target stack.
-2. Create the remote repository (e.g. `gh repo create`) and push `main`; set up branch protection so `main` requires a PR + review.
-3. Update `AGENTS.md` Type/Stack/Verified commands with real values.
-4. Split scope across the four developers and record it in the task topology table above; open one Cockpit task/branch per person.
-5. Create the first task contract (`docs/agent/task-contract-template.md` copy) before any implementation delegation.
-6. Update this file at the next clean boundary.
+2. Update `AGENTS.md` Type/Stack/Verified commands with real values.
+3. Split scope across the four developers and record it in the task topology table above; open one Cockpit task/branch per person.
+4. Create the first task contract (`docs/agent/task-contract-template.md` copy) before any implementation delegation.
+5. Update this file at the next clean boundary.
