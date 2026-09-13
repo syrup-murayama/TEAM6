@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI二度寝裁判所</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="court-header">
+    <p class="eyebrow">AI EIJO HACKATHON MOCK</p>
+    <h1>⚖️ AI二度寝裁判所</h1>
+    <p class="subtitle">その眠気、いま判決を下します。</p>
+  </header>
+
+  <main>
+    <section class="panel input-panel" aria-labelledby="input-heading">
+      <h2 id="input-heading">📝 訴状の記入</h2>
+
+      <div class="field">
+        <label for="sleepiness">今の眠さ</label>
+        <input type="range" id="sleepiness" min="1" max="5" value="3" step="1">
+        <span class="field-value" id="sleepinessLabel">普通に眠い</span>
+      </div>
+
+      <div class="field">
+        <label for="bedtime">昨夜の就寝時刻</label>
+        <input type="time" id="bedtime" value="01:30">
+      </div>
+
+      <div class="field">
+        <label for="wakeTime">起きた時刻</label>
+        <input type="time" id="wakeTime">
+      </div>
+
+      <div class="field">
+        <label for="alarmTime">現在のアラーム時刻</label>
+        <input type="time" id="alarmTime">
+      </div>
+
+      <div class="field">
+        <label for="schedule">今日の予定</label>
+        <select id="schedule">
+          <option value="none">予定なし・休日</option>
+          <option value="light" selected>余裕あり</option>
+          <option value="normal">普通</option>
+          <option value="busy">やや詰まってる</option>
+          <option value="critical">絶対に休めない予定がある</option>
+        </select>
+      </div>
+
+      <button id="judgeBtn" class="gavel-btn" type="button">🔨 判決を求める</button>
+    </section>
+
+    <section class="panel verdict-panel" id="verdictPanel" aria-live="polite" hidden>
+      <div class="verdict-card" id="verdictCard">
+        <div class="verdict-stamp" id="verdictStamp">認容</div>
+        <p class="case-no" id="caseNo">事件番号：眠第0000号</p>
+        <h2>判　決</h2>
+        <p class="verdict-facts" id="verdictFacts"></p>
+        <h3>主文</h3>
+        <p class="verdict-main" id="verdictMain"></p>
+        <h3>理由</h3>
+        <p class="verdict-reason" id="verdictReason"></p>
+
+        <div class="schedule-shift" id="scheduleShift">
+          <h3>⏰ 執行内容（自動反映プレビュー）</h3>
+          <div class="shift-row">
+            <span class="shift-label">アラーム</span>
+            <span class="shift-before" id="alarmBefore">--:--</span>
+            <span class="shift-arrow">→</span>
+            <span class="shift-after" id="alarmAfter">--:--</span>
+          </div>
+          <ul class="shift-list" id="scheduleList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel gate-panel" aria-labelledby="gate-heading">
+      <h2 id="gate-heading">🚨 非常特別処置（人間ゲート）</h2>
+      <p>「会社を休む」判断はAIに委ねません。本人が長押しで確定してください。</p>
+      <button id="skipWorkBtn" class="danger-btn" type="button">
+        <span class="progress-fill" id="skipProgress"></span>
+        <span class="btn-label">長押しで本日欠勤を確定</span>
+      </button>
+      <p class="gate-result" id="skipResult"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Powered by しょうもないAI裁判所エンジン v0.1（完全モック・実際のAI/カレンダー連携なし）</p>
+  </footer>
+
+<script src="script.js"></script>
+</body>
+</html>

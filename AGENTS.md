@@ -5,9 +5,9 @@
 ## Project
 
 **Name**: AGI-ハッカソン-20260913
-**Type**: coding (assumed; product not yet decided — see CURRENT_TASK.md)
-**Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Four first-time-together members with varied backgrounds; all four are developers and will implement together. Goal is to discuss and ship one product together during the event.
-**Stack**: Unknown — to be decided after team discussion. Update this file once chosen.
+**Type**: web-frontend (static mock, no backend yet)
+**Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Four first-time-together members with varied backgrounds; all four are developers and will implement together. Product chosen: "AI二度寝裁判所" — user enters sleepiness, last bedtime, and today's schedule; a rule-based mock "AI" hands down a verdict on whether snoozing is permitted and for how long, then previews shifting the alarm/schedule accordingly. Skipping work entirely stays behind an explicit human long-press gate, never an AI decision.
+**Stack**: Plain static HTML/CSS/JS (`index.html`, `style.css`, `script.js`), no build step, no backend/API — current implementation is a frontend-only mock with rule-based logic in `script.js` standing in for the "AI" judge.
 
 ## Instruction hierarchy
 
@@ -30,10 +30,10 @@
 ## Verified commands
 
 ```bash
-# Install: unknown (no manifest yet)
-# Dev: unknown
-# Test: unknown
-# Build / lint: unknown
+# Install: none — static files, no package manager
+# Dev: open index.html directly in a browser (file://), or serve the repo root with any static file server
+# Test: manual — no automated tests yet
+# Build / lint: none
 ```
 
 ## Coding Profile
