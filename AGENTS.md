@@ -7,7 +7,7 @@
 **Name**: AGI-ハッカソン-20260913
 **Type**: coding (assumed; product not yet decided — see CURRENT_TASK.md)
 **Description**: AI Eijo hackathon (https://luma.com/ai-eijo) team project. Building "AI二度寝裁判所" (AI Oversleep Court) — a joke-premise app that plays the "everything, even trivial life decisions, gets handed to AI" future for laughs: the user reports how sleepy they are (by voice), an AI "judge" (Claude) hands down a verdict on whether they may snooze and for how long, speaks it aloud (ElevenLabs), and reschedules the alarm/morning plan accordingly. The only decision the AI does NOT make unilaterally is calling in sick — that needs an explicit long-press human confirmation. Concept/screen-flow docs: `docs/episodes/`, `docs/design/screen-flow.md`.
-**Stack**: Node.js + Express backend (`/api/judge` calls the Claude API for the verdict, `/api/speak` calls ElevenLabs for TTS) + plain HTML/CSS/JS frontend using the browser's native Web Speech API (`SpeechRecognition`) for voice input. No frontend framework/build step — chosen for hackathon speed.
+**Stack**: Node.js + Express backend (`/api/judge` calls one of xAI/OpenAI/Anthropic for the verdict, selected at runtime by `JUDGE_PROVIDER` — no code change needed to switch; `/api/speak` calls ElevenLabs for TTS) + plain HTML/CSS/JS frontend using the browser's native Web Speech API (`SpeechRecognition`) for voice input. No frontend framework/build step — chosen for hackathon speed.
 
 ## Instruction hierarchy
 
@@ -30,15 +30,22 @@
 ## Verified commands
 
 ```bash
-# Install: unknown (no package.json yet — first implementer to scaffold the Express app should run `npm init` and update this)
-# Dev: unknown — e.g. `node server.js` once written
-# Test: unknown — no test setup yet; hackathon scope may skip automated tests, see Coding Profile
+# Install: pnpm install
+# Dev: pnpm start                 # runs server.js on $PORT (default 3000)
+# Tunnel: pnpm tunnel             # cloudflared quick tunnel -> public https URL for the demo
+# Test: none — hackathon scope skips automated tests, see Coding Profile
 # Build / lint: none — no build step (plain HTML/CSS/JS, no bundler)
 ```
 
+## Hosting for the demo
+
+- Considered "ロリポップ！デプロイナウ" (GMO Pepabo) but it only officially supports Next.js/Nuxt/static — not plain Express — so it was not used. See `docs/design/requirements.md` if this needs revisiting for a non-hackathon deployment.
+- Chosen instead: `cloudflared tunnel --url http://localhost:3000` (installed via `brew install cloudflared`, a global package install the user approved). Run `pnpm start` in one terminal and `pnpm tunnel` in another; the printed `https://*.trycloudflare.com` URL is the public demo link. It changes every run (free quick-tunnel), so re-share the URL if the tunnel is restarted.
+- This network blocks outbound QUIC/UDP, which makes cloudflared's default protocol hang and return Cloudflare 530 errors. `package.json`'s `tunnel` script pins `--protocol http2` to work around it — verified working (200 response through the tunnel). If running from a different network without this restriction, either protocol should work.
+
 ## Secrets
 
-- `ANTHROPIC_API_KEY` and `ELEVENLABS_API_KEY` are required by the backend and MUST be read from environment variables (e.g. a local `.env` loaded by the process), never hardcoded or committed. Add `.env` to `.gitignore` before the first commit that introduces it.
+- `/api/judge`'s provider is chosen by `JUDGE_PROVIDER` (`xai` | `openai` | `anthropic`, default `xai`); only that provider's API key needs to be set. `ELEVENLABS_API_KEY` is always required for `/api/speak`. All keys MUST come from environment variables (e.g. a local `.env` loaded by the process), never hardcoded or committed. Add `.env` to `.gitignore` before the first commit that introduces it. See `example.env` for the full variable list.
 - The repo is public — treat any accidental key commit as a live incident (rotate the key immediately), not just a revert.
 
 ## Coding Profile

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI二度寝裁判所</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header id="context-bar" class="context-bar" hidden>
+  <span id="ctx-sleep"></span>
+  <span id="ctx-event"></span>
+  <span id="ctx-commute"></span>
+</header>
+
+<main id="app">
+
+  <section id="screen-alarm" class="screen active">
+    <div class="mascot">⏰</div>
+    <h1>アラームが鳴っています</h1>
+    <p class="hint">タップして止めてください（このあとは声だけで進みます）</p>
+    <button id="btn-plead" class="cta">アラームを止める</button>
+  </section>
+
+  <section id="screen-listening" class="screen">
+    <div class="mascot" id="listen-mascot">🎙️</div>
+    <h1 id="listen-status">聞いています…</h1>
+    <div id="listen-transcript" class="transcript-log"></div>
+
+    <!-- 音声認識非対応ブラウザ用フォールバックのみ -->
+    <div id="fallback-form" hidden>
+      <p>このブラウザは音声入力に対応していません。かわりに入力してください。</p>
+      <input type="text" id="note-fallback" placeholder="例: まだ眠い、9時半から会議…" />
+      <button id="btn-submit-fallback" class="cta">送信</button>
+    </div>
+  </section>
+
+  <section id="screen-trial" class="screen">
+    <div class="gavel">⚖️</div>
+    <h1>審理中…しばし待たれよ</h1>
+  </section>
+
+  <section id="screen-verdict" class="screen">
+    <h1>判決</h1>
+    <div id="verdict-card" class="verdict-card">
+      <p id="verdict-reason"></p>
+    </div>
+    <audio id="verdict-audio"></audio>
+  </section>
+
+  <section id="screen-execute" class="screen">
+    <h1 id="execute-title"></h1>
+    <p id="execute-detail"></p>
+
+    <div class="sick-gate">
+      <p>それでも起きられない場合は…</p>
+      <button id="btn-sick" class="danger">
+        本日は休む（3秒長押しで承認）
+      </button>
+    </div>
+
+    <button id="btn-restart" class="cta secondary">もう一度（デモリセット）</button>
+  </section>
+
+</main>
+
+<audio id="greeting-audio"></audio>
+
+<script src="app.js"></script>
+</body>
+</html>
