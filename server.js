@@ -46,31 +46,31 @@ const MOCK_DEVICE_CONTEXT = {
   },
   calendar: {
     connected: true,
-    firstEvent: { title: "定例ミーティング", time: "09:30" },
+    // DEMO_FIRST_EVENT_TIME lets the presenter force the "denied" (barely any
+    // buffer) path for a rehearsal/demo pass without touching code — e.g.
+    // `DEMO_FIRST_EVENT_TIME=07:20 pnpm start`. Default "09:30" gives ~99min
+    // buffer (reliably "granted"); something like "07:20" gives <15min
+    // (reliably "denied"). See README/qa-checklist.
+    firstEvent: { title: "定例ミーティング", time: process.env.DEMO_FIRST_EVENT_TIME || "09:30" },
     commuteMinutes: 35,
   },
+  // Fixed demo "now" so the app always plays out as "just woke up at 7am",
+  // regardless of the actual wall-clock time when the demo is presented.
+  now: "07:01",
 };
 
-function nowJst() {
-  return new Intl.DateTimeFormat("ja-JP", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Tokyo",
-  }).format(new Date());
-}
-
 app.get("/api/context", (req, res) => {
-  res.json({ ...MOCK_DEVICE_CONTEXT, now: nowJst() });
+  res.json(MOCK_DEVICE_CONTEXT);
 });
 
 const JUDGE_SYSTEM_PROMPT = `あなたは「AI二度寝裁判所」の裁判官AIです。
 Apple Watchとカレンダーからすでに連携済みのデータ（就寝時刻、睡眠の質、今日最初の予定）と、ユーザーが寝起きに話した内容（transcript）をもとに、二度寝を何分許可するか、または即時起床を命じるかを判決として下します。
 
 判決基準:
-- 今日最初の予定までの残り時間が短いほど、許可時間は短くする。
-- 睡眠の質が低い・睡眠時間が短いほど、許可時間は長くする傾向にしてよいが、予定に遅れるリスクがある場合は棄却(即時起床)する。
-- ユーザーの発言（言い訳や気分）も判決理由に反映する。
+- 「二度寝に使える猶予分数」はサーバー側ですでに計算済みで、ユーザーメッセージ中に明記されている。あなたはこの数値を信頼し、自分で時刻の引き算をやり直さないこと。
+- 猶予分数が15分未満なら即時棄却（denied, minutes:0）。
+- 猶予分数が15分以上あるなら、原則として granted とする。許可分数は「猶予分数」を上限として、ユーザーの希望や睡眠の質を考慮して決めてよい（出し惜しみせず、猶予分数の大部分を使ってよい）。denied にするのは猶予がほぼ無い場合だけにすること。
+- ユーザーの発言（言い訳や気分）は判決理由の文面に反映してよいが、granted/denied の判定そのものは猶予分数を優先する。
 - 判決文は法廷風のユーモラスな文体（「主文。〜」で始める）にする。
 
 必ず次のJSON形式のみで応答してください（説明文やコードブロックは付けない）:
@@ -145,8 +145,16 @@ app.post("/api/judge", async (req, res) => {
     });
   }
 
-  const { appleWatch, calendar } = MOCK_DEVICE_CONTEXT;
-  const userContent = `現在時刻: ${nowJst()}
+  const { appleWatch, calendar, now } = MOCK_DEVICE_CONTEXT;
+  const PREP_MINUTES = 15;
+  const toMinutes = (hhmm) => {
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+  };
+  const limitMinutes = toMinutes(calendar.firstEvent.time) - calendar.commuteMinutes - PREP_MINUTES;
+  const bufferMinutes = Math.max(0, limitMinutes - toMinutes(now));
+
+  const userContent = `現在時刻: ${now}
 【Apple Watch連携データ】
 昨夜の就寝時刻: ${appleWatch.bedtime}
 睡眠時間: ${appleWatch.sleepHours}時間
@@ -156,6 +164,10 @@ app.post("/api/judge", async (req, res) => {
 【カレンダー連携データ】
 今日最初の予定: ${calendar.firstEvent.title}（${calendar.firstEvent.time}〜）
 通勤時間: 約${calendar.commuteMinutes}分
+身支度時間: ${PREP_MINUTES}分（固定）
+
+【計算済み: 二度寝に使える猶予分数】
+${bufferMinutes}分（この数値をそのまま判定に使うこと。自分で計算し直さないこと）
 
 【ユーザーが今話した内容】
 ${transcript || "(聞き取れず)"}`;
