@@ -21,6 +21,7 @@ Updated: 2026-09-13
 |---|---|---|---|---|
 | Master | Unknown | Unknown | Human gate | Unknown |
 | Worker | Unknown | Unknown | Unknown | Unknown |
+| Specialist Worker (presentation/pitch materials) | Cockpit task (ginana0015-creator) | `ginana0015-creator/presentation-deck` | Human gate (ginana0015-creator) | Done — draft pitch written from `docs/design/requirements.md` + `docs/design/screen-flow.md` + `docs/episodes/`, PR pending |
 | Independent reviewer | Unknown | Unknown | Human gate | Unknown |
 
 - Immutable comparison refs: None verified.
@@ -32,7 +33,8 @@ Updated: 2026-09-13
 |---|---|---|---|
 | syrup-murayama | admin (owner) | Lead implementer | active |
 | (assistant — GitHub username TBD) | write | Implementation assistant | TBD |
-| ginana0015-creator / asukaman7 / yukimmo91-lab | write | 2 of these 3 make presentation/demo materials; roles not yet assigned per-person | accepted (repo access), role TBD |
+| ginana0015-creator | write | Presentation/pitch materials | active — drafted `docs/presentation/pitch.md` on `ginana0015-creator/presentation-deck`, PR pending |
+| asukaman7 / yukimmo91-lab | write | One more of these two also makes presentation/demo materials; roles not yet assigned per-person | accepted (repo access), role TBD |
 
 Only 2 people write app code for this build (lead + 1 assistant); the other 2 focus on presentation, not push access restriction.
 
@@ -46,7 +48,11 @@ Only 2 people write app code for this build (lead + 1 assistant); the other 2 fo
 
 ## Work in progress
 
-- None yet.
+- `ginana0015-creator/presentation-deck` (branch off this commit, `c787a59`): drafted `docs/presentation/pitch.md` covering the pitch story, demo highlight order, anticipated Q&A, and a 7-slide deck outline — built from `docs/design/requirements.md`, `docs/design/screen-flow.md`, and both `docs/episodes/` files, since the app isn't demoable yet. Marked spots to swap in real screenshots once the MVP works. PR pending.
+
+## Note on an earlier, now-superseded workstream
+
+- Before this file was rewritten to lock the product/stack/role split (commit `c787a59`), ginana0015-creator had already built and opened **PR #1** (`ginana0015-creator/setup-workspace`, still open, unmerged) — a plain static HTML/CSS/JS mock of an earlier product framing (2-second long-press, no voice, no backend, rule-based JS "judge"). That predates this doc's locked decisions: only 2 people write app code (lead + 1 assistant), the real stack is Node.js + Express + Claude API + ElevenLabs + Web Speech API, and the human-gate hold time is 3 seconds, not 2. Flagging for the lead implementer / Master Agent to decide whether PR #1 gets reconciled into the real build, superseded/closed, or repurposed — not resolved unilaterally here since it's a design/ownership call, not a presentation-materials one.
 
 ## Blockers and risks
 
