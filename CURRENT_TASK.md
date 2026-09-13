@@ -33,7 +33,9 @@ Updated: 2026-09-13
 | syrup-murayama | admin (owner) | active |
 | ginana0015-creator | write | accepted |
 | asukaman7 | write | accepted |
-| (4th member) | write | not yet invited — username needed |
+| yukimmo91-lab | write | accepted |
+
+All four members now have write access to TEAM6.
 
 ## Accepted decisions
 
