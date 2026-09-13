@@ -26,6 +26,15 @@ Updated: 2026-09-13
 - Immutable comparison refs: None verified.
 - Authority conflicts: None verified.
 
+## Team roster (GitHub collaborators on TEAM6)
+
+| GitHub username | Repo role | Status |
+|---|---|---|
+| syrup-murayama | admin (owner) | active |
+| ginana0015-creator | write | accepted |
+| asukaman7 | write | accepted |
+| (4th member) | write | not yet invited — username needed |
+
 ## Accepted decisions
 
 - Project type assumed as `coding` (generic) since no product/stack has been chosen yet. Revisit once the team picks a direction — it may turn out to be `web-frontend` or another profile.
